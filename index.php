@@ -24,15 +24,36 @@ and open the template in the editor.
         $DadosJson = file_get_contents('http://vagalumewifi.com.br/timeline.json');
         /* Decodificar a JSON */
         $Dados = json_decode($DadosJson);
+
+        /* Ordernar por data de registro */
+        usort($Dados, function($a, $b) {
+            //strtotime - Interpreta qualquer descrição de data/hora em texto em inglês em timestamp Unix
+            return strtotime($a->date) > strtotime($b->date) ? -1 : (strtotime($a->date) < strtotime($b->date) ? +1 : 0);
+        });
         ?>
 
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <h1><span class="glyphicon glyphicon-time" title="friends" aria-hidden="true"></span> TIMELINE</h1>
-                </div>                
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <span class="glyphicon glyphicon-globe" aria-hidden="true">REDE SOCIAL</span>
+                    </a>
+                </div>
             </div>
+        </nav>
+        <br/>
+        <br/>
+        
+        <div class="container-fluid">
+            <div class="row">
+                <div class="jumbotron">
+                    <h1><span class="glyphicon glyphicon-time" title="friends" aria-hidden="true"></span> TIMELINE</h1> 
+                    <p>Exibindo dados da linha do tempo.</p> 
+                </div>
+            </div>
+        </div>
 
+        <div class="container">
             <?php
             foreach ($Dados as $dado) {
                 ?>
@@ -43,7 +64,7 @@ and open the template in the editor.
                                 <img src="<?php echo $dado->{'user'}->{'picture'}; ?>" class="img-responsive img-thumbnail" alt="Sem imagem">
                                 <h2><strong title="UserName"><?php echo $dado->{'user'}->{'username'}; ?></strong></h2>
                                 <h3 title="Location"><?php echo $dado->{'user'}->{'location'}; ?></h3>
-                                <span class="glyphicon glyphicon-comment" title="bio">
+                                <span class="glyphicon glyphicon-comment" title="bio" aria-hidden="true" data-toggle="popover" title="Bio" data-content=" <?php echo $dado->{'user'}->{'bio'}; ?>">
                                     Bio
                                 </span>
                                 <span class="glyphicon glyphicon-user" title="friends" aria-hidden="true">
@@ -55,10 +76,13 @@ and open the template in the editor.
                     <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-12">
-                                <h3><?php echo $dado->{'date'};?></h3>
+                                <h3 title="<?php echo $dado->{'date'}; ?>"><?php
+                                    /* Converter do formato Data ISO 8601 para d/m/Y H:i:s */
+                                    echo date("d/m/Y H:i:s", strtotime($dado->{'date'}));
+                                    ?></h3>
                                 <br/>
                                 <span class="glyphicon glyphicon-thumbs-up" title="likes" aria-hidden="true">
-                                    <?php echo $dado->{'likes'};?>
+                                    <?php echo $dado->{'likes'}; ?>
                                 </span>
                             </div>
                         </div>
@@ -67,7 +91,7 @@ and open the template in the editor.
                                 <p><?php echo $dado->{'content'}; ?></p>
                             </div>
                         </div>
-                    </div>                 
+                    </div>                
                 </div>
                 <?php
             }
